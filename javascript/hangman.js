@@ -82,6 +82,7 @@ class Hangman {
 
   addCorrectLetter(letter) {
     this.guessedLetters += letter
+    console.log(this.guessedLetters)
   }
 
   addWrongLetter(letter) {
@@ -98,9 +99,9 @@ class Hangman {
   }
 
   checkWinner() {
-    if(this.guessedLetters.length === this.secretWord.length){
+    if (this.guessedLetters.length === this.secretWord.length) {
       return true
-    }else{
+    } else {
       return false
     }
   }
@@ -110,19 +111,44 @@ let hangman;
 
 const startGameButton = document.getElementById('start-game-button');
 
-if (startGameButton) {
-  startGameButton.addEventListener('click', event => {
-    hangman = new Hangman(['node', 'javascript', 'react', 'miami', 'paris', 'amsterdam', 'lisboa']);
 
-    // HINT (uncomment when start working on the canvas portion of the lab)
-    // hangman.secretWord = hangman.pickWord();
-    // hangmanCanvas = new HangmanCanvas(hangman.secretWord);
+startGameButton.addEventListener('click', event => {
+  hangman = new Hangman(['node', 'javascript', 'react', 'miami', 'paris', 'amsterdam', 'lisboa'])
 
-    // ... your code goes here
-  });
-}
+  // HINT (uncomment when start working on the canvas portion of the lab)
+  hangman.secretWord = hangman.pickWord();
+  hangmanCanvas = new HangmanCanvas(hangman.secretWord)
+
+  hangmanCanvas.createBoard()
+})
+
 
 document.addEventListener('keydown', event => {
   // React to user pressing a key
-  // ... your code goes here
-});
+  if (hangman.checkIfLetter(event.keyCode)) {
+    if (hangman.checkClickedLetters(event.key)) {
+      if (hangman.secretWord.includes(event.key)) {
+        hangman.addCorrectLetter(event.key)
+        hangmanCanvas.writeCorrectLetter(event.key)
+      } else {
+        hangman.addWrongLetter(event.key)
+        hangmanCanvas.writeWrongLetter(hangman.letters, hangman.errorsLeft)
+        hangmanCanvas.drawHangman(hangman.errorsLeft)
+      }
+    } else {
+      return window.alert(`Ya has presionado la tecla "${event.key}"" antes, prueba con otra`)
+    }
+  } else {
+    return window.alert(`No presionaste una letra de la A a la z
+    Z tu presionaste "${event.key}", usa otra`)
+  }
+  // Agregando eventos si gano o perdio la paertidade
+  if (hangman.checkGameOver()) {
+    hangmanCanvas.context.clearRect(0, 0, innerWidth, innerHeight)
+    hangmanCanvas.gameOver()
+  }
+  if (hangman.checkWinner()) {
+    hangmanCanvas.context.clearRect(0, 0, innerWidth, innerHeight)
+    hangmanCanvas.winner()
+  }
+})
